@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<server port="8080">
+  <module context="spring01" name="spring01" path="C:/work/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/spring01" type="j2ee"/>
+</server>
