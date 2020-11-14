@@ -10,7 +10,6 @@ public class MainController {
 	// http://localhost:8080/spring01
 	@RequestMapping("/")  // URL 매핑
 	public String main(Model model) {
-		model.addAttribute("name", "김덕기");
 		model.addAttribute("message", "홈페이지 방문을 환영합니다.");  // 앞이 변수명, 뒤가 값
 		return "main";  // main.jsp
 		// "/WEB-INF/views/main.jsp 라는 뜻 - 뷰리졸버에 이미 되어있음
