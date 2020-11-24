@@ -76,7 +76,6 @@ public class MainController {
 	public ModelAndView mav() {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("product", new ProductDTO("샤프", 1000));
-		// ModelAndView(url, key, value)
 		return new ModelAndView("test/mav_result", "map", map);
 	}
 }

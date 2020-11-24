@@ -1,17 +1,12 @@
 package com.example.spring01.controller;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
 
 import com.example.spring01.model.dto.PointDTO;
-import com.example.spring01.model.dto.ProductDTO;
 
 @Controller  // 컨트롤러 어노테이션( 얘는 컨트롤러다 라고 지정해주는 것)
 public class MainController {
@@ -70,13 +65,5 @@ public class MainController {
 		model.addAttribute("age", age);
 		 
 		return "test/result";
-	}
-	
-	@RequestMapping("mav.do")
-	public ModelAndView mav() {
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("product", new ProductDTO("샤프", 1000));
-		// ModelAndView(url, key, value)
-		return new ModelAndView("test/mav_result", "map", map);
 	}
 }
