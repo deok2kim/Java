@@ -8,4 +8,6 @@
 <a href="move.do">redirect</a>
 <a href="mav.do">ModelAndView</a>
 <a href="ajax.do">비동기식 호출1</a>
+<a href="login.do">비동기식 호출2</a>
+<a href="ajax_gugu.do">구구단(ajax)</a>
 <hr>
