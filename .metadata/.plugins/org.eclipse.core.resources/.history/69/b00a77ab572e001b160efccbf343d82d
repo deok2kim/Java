@@ -1,0 +1,10 @@
+package com.example.spring01.model.dto;
+
+public class PointDTO {
+	private String name;
+	private int korean;
+	private int english;
+	private int math;
+	private int total;
+	private double average;
+}

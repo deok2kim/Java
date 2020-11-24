@@ -7,6 +7,9 @@
 <title>Insert title here</title>
 </head>
 <body>
+<!-- jsp 불러오기! 약간 네브바 느낌? -->
+<jsp:include page="include/menu.jsp" />
+
 <h2>name: ${name}</h2>
 <h2>message: ${message}</h2>
 
