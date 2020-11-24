@@ -5,7 +5,178 @@
   <link rel="self" href="https://spring.io/blog.atom" />
   <id>http://spring.io/blog.atom</id>
   <icon>https://spring.io/favicon.ico</icon>
-  <updated>2020-11-23T15:39:00Z</updated>
+  <updated>2020-11-24T13:19:57Z</updated>
+  <entry>
+    <title>Spring Data 2020.0 - New and Noteworthy in Spring Data Elasticsearch 4.1</title>
+    <link rel="alternate" href="https://spring.io/blog/2020/11/24/spring-data-2020-0-new-and-noteworthy-in-spring-data-elasticsearch-4-1" />
+    <category term="engineering" label="Engineering" />
+    <author>
+      <name>Christoph Strobl</name>
+    </author>
+    <id>tag:spring.io,2020-11-05:4256</id>
+    <updated>2020-11-24T13:19:57Z</updated>
+    <content type="html">&lt;div class="paragraph"&gt;
+&lt;p&gt;Spring Data Elasticsearch is one of the community modules shipped with the &lt;a href="https://spring.io/blog/2020/11/06/spring-data-2020-0-new-and-noteworthy-a-general-overview"&gt;2020.0&lt;/a&gt; release. On behalf of &lt;a href="https://twitter.com/sothawo"&gt;P.J. Meisch&lt;/a&gt;, who is doing most of the heavy lifting these days, we&amp;#8217;re happy to share his insights on the current release.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="paragraph"&gt;
+&lt;p&gt;The previous release included major overhaul of the internal code structure and the API, whereas the 2020.0 version of Spring Data Elasticsearch focused on fixing bugs and adding functionality.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="paragraph"&gt;
+&lt;p&gt;Altogether there were 23 bugs fixed and 81 other issues resolved. Spring Data Elasticsearch now is built with the actual Elasticsearch version 7.9.3.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="paragraph"&gt;
+&lt;p&gt;This blog post shows the most important features that were added to Spring Data Elasticsearch in version 4.1.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="sect1"&gt;
+&lt;h2 id="index-management"&gt;&lt;a class="anchor" href="#index-management"&gt;&lt;/a&gt;Index management&lt;/h2&gt;
+&lt;div class="sectionbody"&gt;
+&lt;div class="paragraph"&gt;
+&lt;p&gt;This release adds the missing pieces to have index management available from within the application, especially alias handling and index templates.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="paragraph"&gt;
+&lt;div class="title"&gt;Alias handling&lt;/div&gt;
+&lt;p&gt;The methods for alias handling in the &lt;code&gt;IndexOperations&lt;/code&gt; interface have been redesigned to follow the Elasticsearch API for handling aliases. We now offer all the alias actions that Elasticsearch has in its API as well.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="paragraph"&gt;
+&lt;div class="title"&gt;Index templates&lt;/div&gt;
+&lt;p&gt;Index templates in Elasticsearch define mappings, settings and alias information in combination with an index name pattern. So one can define a template for an index name pattern like "log-*", and whenever an index like "log-2020-11-01" is created, the predefined mappings, settings and alias settings are automatically applied to the index.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="paragraph"&gt;
+&lt;p&gt;Spring Data Elasticsearch now supports the management of index templates so the same entity annotations that are used for mappings and settings when creating an index are used for defining index templates.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="paragraph"&gt;
+&lt;p&gt;With this index management it now is possible to implement index naming strategies like rolling indices with time based index names.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="paragraph"&gt;
+&lt;p&gt;The index management functions now are available for the reactive setup as well as as for  the non-reactive one.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="sect1"&gt;
+&lt;h2 id="nested-criteria-definitions"&gt;&lt;a class="anchor" href="#nested-criteria-definitions"&gt;&lt;/a&gt;Nested Criteria definitions&lt;/h2&gt;
+&lt;div class="sectionbody"&gt;
+&lt;div class="paragraph"&gt;
+&lt;p&gt;On of the possibilities to define queries in Spring Data Elasticsearch is by using the &lt;code&gt;Criteria&lt;/code&gt; query API. It allows for a fluent, language like syntax:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="listingblock"&gt;
+&lt;div class="content"&gt;
+&lt;pre class="prettyprint highlight"&gt;&lt;code data-lang="java"&gt;Criteria criteria = new Criteria("lastName").is("Smith")
+    .and("firstName").is("Emma");
+Query query = new CriteriaQuery(criteria);&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="paragraph"&gt;
+&lt;p&gt;Up to now it was not possible to build nested queries with this API. If the user wants to search for all persons that have a last name of &lt;em&gt;Smith&lt;/em&gt; and a first name of either &lt;em&gt;Emma&lt;/em&gt; or &lt;em&gt;Lucy&lt;/em&gt;, one might use the following query:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="listingblock"&gt;
+&lt;div class="content"&gt;
+&lt;pre class="prettyprint highlight"&gt;&lt;code data-lang="java"&gt;Criteria criteria = new Criteria("lastName").is("Smith")
+    .and("firstName").is("Emma")
+    .or("firstName").is("Lucy");&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="paragraph"&gt;
+&lt;p&gt;But this would return &lt;em&gt;Emma Smith&lt;/em&gt; and no &lt;em&gt;Lucy&lt;/em&gt;, because this would be mapped to "must be Smith and must be Emma and should be Lucy".&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="paragraph"&gt;
+&lt;p&gt;We now support nested Criteria definitions:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="listingblock"&gt;
+&lt;div class="content"&gt;
+&lt;pre class="prettyprint highlight"&gt;&lt;code data-lang="java"&gt;Criteria emmaOrLucy = new Criteria()
+    .or("firstName").is("Emma")
+    .or("firstName").is("Lucy")
+Criteria criteria = new Criteria("lastName).is("Smith")
+    .subCriteria(emmaOrLucy)&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="paragraph"&gt;
+&lt;p&gt;With these subcriterias it is now possible to build arbitrarily nested complex queries without using the &lt;code&gt;NativeSearchQuery&lt;/code&gt; or the &lt;code&gt;StringQuery&lt;/code&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="sect1"&gt;
+&lt;h2 id="geo_shape-support"&gt;&lt;a class="anchor" href="#geo_shape-support"&gt;&lt;/a&gt;geo_shape support&lt;/h2&gt;
+&lt;div class="sectionbody"&gt;
+&lt;div class="paragraph"&gt;
+&lt;p&gt;Spring Data Elasticsearch now finally supports the &lt;em&gt;geo_shape&lt;/em&gt; datatype. A property of an entity now is interpreted as a &lt;em&gt;geo_shape&lt;/em&gt; property if it either is derived from the newly introduced &lt;code&gt;GeoJson&lt;/code&gt; interface or if it is annotated with the &lt;code&gt;@GeoShapeField&lt;/code&gt; annotation.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="paragraph"&gt;
+&lt;p&gt;Spring Data Elasticsearch provides the following implementations for the &lt;code&gt;GeoJson&lt;/code&gt; interface:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="ulist"&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;GeoJsonPoint&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;GeoJsonMultiPoint&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;GeoJsonMultiLineString&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;GeoJsonPolygon&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;GeoJsonMultiPolygon&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;GeoJsonGeometryCollection&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;div class="paragraph"&gt;
+&lt;p&gt;For a property annotated with &lt;code&gt;@GeoShapeField&lt;/code&gt; that does not implement &lt;code&gt;GeoJson&lt;/code&gt; one must provide custom converters for converting to and from a &lt;code&gt;Document&lt;/code&gt; object or &lt;code&gt;String&lt;/code&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="paragraph"&gt;
+&lt;p&gt;&lt;em&gt;geo_shape&lt;/em&gt; properties are considered at the following places:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="paragraph"&gt;
+&lt;div class="title"&gt;1. mappings definitions&lt;/div&gt;
+&lt;p&gt;a property defined as &lt;em&gt;geo_shape&lt;/em&gt; will be written to the index mappings with type &lt;em&gt;geo_shape&lt;/em&gt;, so that Elasticsearch recognizes the data as GeoJson data.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="paragraph"&gt;
+&lt;div class="title"&gt;2. properties mapping&lt;/div&gt;
+&lt;p&gt;when document with a property of type &lt;em&gt;geo_shape&lt;/em&gt; is written to Elasticsearch, the property will be converted to the corresponding GeoJSON representation, and when a search response is read, the appropriate &lt;code&gt;GeoJson&lt;/code&gt; derived type will be instantiated. So the &lt;em&gt;geo_shape&lt;/em&gt; types can be used like any other property type in an entity.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="paragraph"&gt;
+&lt;div class="title"&gt;3. criteria queries&lt;/div&gt;
+&lt;p&gt;Queries for &lt;em&gt;geo_shape&lt;/em&gt; properties can be built with the &lt;code&gt;NativeSearchQuery&lt;/code&gt; and the &lt;code&gt;QueryString&lt;/code&gt; classes; besides that, the &lt;code&gt;Criteria&lt;/code&gt; interface now has methods to build such queries like:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="listingblock"&gt;
+&lt;div class="content"&gt;
+&lt;pre class="prettyprint highlight"&gt;&lt;code data-lang="java"&gt;CriteriaQuery query = new CriteriaQuery(new Criteria("area").intersects(geoShape));&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="paragraph"&gt;
+&lt;p&gt;where &lt;em&gt;area&lt;/em&gt; is a &lt;em&gt;geo_shape&lt;/em&gt; property and &lt;em&gt;geoShape&lt;/em&gt; some variable of type &lt;code&gt;GeoJson&lt;/code&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="paragraph"&gt;
+&lt;p&gt;The &lt;code&gt;Criteria&lt;/code&gt; methods for &lt;em&gt;geo_shape&lt;/em&gt;  conditions are &lt;em&gt;within&lt;/em&gt;, &lt;em&gt;intersects&lt;/em&gt;, &lt;em&gt;isDisjoint&lt;/em&gt; and &lt;em&gt;contains&lt;/em&gt;, the same as offered by Elasticsearch for geo_shape queries.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="sect1"&gt;
+&lt;h2 id="what-else"&gt;&lt;a class="anchor" href="#what-else"&gt;&lt;/a&gt;what else?&lt;/h2&gt;
+&lt;div class="sectionbody"&gt;
+&lt;div class="ulist"&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Auditing support that was introduced in version 4.0 now is fully supported in the reactive stack as well.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;When a nested query with inner hits, the inner hits are now returned in the &lt;code&gt;SearchHit&lt;/code&gt; objects&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;div class="paragraph"&gt;
+&lt;p&gt;This was a short overview over the main changes in Spring Data Elasticsearch 4.1, we hope you enjoy using it!&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;!-- rendered by Sagan Renderer Service --&gt;</content>
+  </entry>
   <entry>
     <title>Spring Native for GraalVM 0.8.3 available now</title>
     <link rel="alternate" href="https://spring.io/blog/2020/11/23/spring-native-for-graalvm-0-8-3-available-now" />
@@ -1614,7 +1785,7 @@ dependencies {&#xD;
   &lt;li&gt;General Repository and store-specific Redis Cache Metrics.&lt;/li&gt;
   &lt;li&gt;&lt;a href="https://spring.io/blog/2020/11/20/spring-data-2020-0-new-and-noteworthy-in-spring-data-neo4j-6-0"&gt;Neo4J reactive repositories&lt;/a&gt;.&lt;/li&gt;
   &lt;li&gt;Paging repository APIs for Spring Data for Apache Geode.&lt;/li&gt;
-  &lt;li&gt;Geoshape, index, and reactive search improvements for Spring Data Elasticsearch.&lt;/li&gt;
+  &lt;li&gt;Geoshape, index, and reactive search improvements for &lt;a href="https://spring.io/blog/2020/11/24/spring-data-2020-0-new-and-noteworthy-in-spring-data-elasticsearch-4-1"&gt;Spring Data Elasticsearch&lt;/a&gt;.&lt;/li&gt;
   &lt;li&gt;Partial filter and aggregation hints in &lt;a href="https://spring.io/blog/2020/11/13/spring-data-2020-0-new-and-noteworthy-in-spring-data-mongodb-3-1"&gt;MongoDB&lt;/a&gt;.&lt;/li&gt;
   &lt;li&gt;&lt;code&gt;@Bean&lt;/code&gt; row mappers for the &lt;a href="https://spring.io/blog/2020/11/10/spring-data-2020-0-new-and-noteworthy-in-spring-data-jdbc-2-1"&gt;JDBC&lt;/a&gt; module.&lt;/li&gt;
   &lt;li&gt;Per-statement key spaces definition for the Apache Cassandra abstraction.&lt;/li&gt;
@@ -1734,19 +1905,6 @@ PersonRespository.findByName(String): 1 ms - SUCCESS
 &lt;/code&gt;&lt;/pre&gt;&lt;h2&gt;&lt;a href="#graalvm-native-images" class="anchor" name="graalvm-native-images"&gt;&lt;/a&gt;GraalVM native images&lt;/h2&gt;
 &lt;p&gt;When talking about metrics and performance, one might soon think of scale-to-zero scenarios, startup speed, and &lt;a href="https://www.graalvm.org/reference-manual/native-image/"&gt;GraalVM native images&lt;/a&gt;. The Spring Data team has been pushing hard on that end, resulting in an improved developer experience when compiling native images that make use of Spring Data repositories.&lt;br/&gt;The efforts cover simple toggles to disable certain features, such as the code generation for an optimized entity instantiation scenario, &lt;a href="https://github.com/spring-projects-experimental/spring-graalvm-native/blob/0.8.2/spring-graalvm-native-configuration/src/main/java/org/springframework/boot/autoconfigure/data/mongodb/MongoRepositoriesHints.java"&gt;compilation hints&lt;/a&gt;, and a &lt;code&gt;SpringDataComponentProcessor&lt;/code&gt; as part of the &lt;a href="https://github.com/spring-projects-experimental/spring-graalvm-native"&gt;spring-graalvm-native&lt;/a&gt; project.&lt;br/&gt;The component processor inspects Spring Data repositories, the domain types, and method signatures. Based on that information, it adds all the required proxy, resource, and reflection configuration to the native image to make it work.&lt;br/&gt;This also includes any store-specific annotations and custom implementations for both the imperative and reactive interfaces.&lt;br/&gt;If you are curious, give it a &lt;a href="https://github.com/spring-projects-experimental/spring-graalvm-native/blob/0.8.2/spring-graalvm-native-samples"&gt;try&lt;/a&gt;!&lt;/p&gt;
 &lt;p&gt;With that, we finish our first part of this series. Watch this space for updates related to your favorite store and check out the &lt;a href="https://github.com/spring-projects/spring-data-examples"&gt;Spring Data Examples&lt;/a&gt; to shorten the time till it is published.&lt;/p&gt;
-&lt;!-- rendered by Sagan Renderer Service --&gt;</content>
-  </entry>
-  <entry>
-    <title>A Bootiful Podcast: Spring legend Thomas Risberg on JDBC, Spring Cloud Data Flow, Kubernetes and so much more</title>
-    <link rel="alternate" href="https://spring.io/blog/2020/11/05/a-bootiful-podcast-spring-legend-thomas-risberg-on-jdbc-spring-cloud-data-flow-kubernetes-and-so-much-more" />
-    <category term="engineering" label="Engineering" />
-    <author>
-      <name>Josh Long</name>
-    </author>
-    <id>tag:spring.io,2020-11-05:4261</id>
-    <updated>2020-11-05T23:44:26Z</updated>
-    <content type="html">&lt;p&gt;Hi, Spring fans! In this episode &lt;a href="http://twitter.com/starbuxman"&gt;Josh Long (@starbuxman)&lt;/a&gt; talks to Spring &lt;a href="http://twitter.com/trisberg"&gt;legend Thomas Risberg (@trisberg)&lt;/a&gt;.&lt;/p&gt;
-&lt;iframe title="Spring legend Thomas Risberg on JDBC, Spring Cloud Data Flow, Kubernetes and so much more" height="122" width="100%" style="border: none;" scrolling="no" data-name="pb-iframe-player" src="https://www.podbean.com/media/player/bqtfb-f17814?from=pb6admin&amp;download=1&amp;version=1&amp;auto=0&amp;share=1&amp;download=1&amp;rtl=0&amp;fonts=Helvetica&amp;skin=1&amp;pfauth=&amp;btn-skin=107"&gt;&lt;/iframe&gt;
 &lt;!-- rendered by Sagan Renderer Service --&gt;</content>
   </entry>
 </feed>

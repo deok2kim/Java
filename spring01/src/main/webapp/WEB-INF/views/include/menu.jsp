@@ -7,4 +7,5 @@
 <a href="point.do">성적계산</a>
 <a href="move.do">redirect</a>
 <a href="mav.do">ModelAndView</a>
+<a href="ajax.do">비동기식 호출1</a>
 <hr>
